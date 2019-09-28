@@ -293,7 +293,19 @@ void despachador(){
                 TAILQ_REMOVE(&head_ready_three, head_ready_three.tqh_first, entries);
                 if(element->processor_time <= 0){
                     printf("Proceso con ID %d culminado.\n", element->id);
+                    printf("hola");
                     release_resources(element);
+                    if(head_resources_three.tqh_first != NULL){
+                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
+                            continue;
+                        }
+                        if(element != NULL){
+                            add_to_ready_three(element);
+                            printf("ELEMENT ID: %d\n", element->id);
+                            TAILQ_REMOVE(&head_resources_three, element, entries);
+                        }
+                    }
+                    
                 }else{
                     printf("QUANTUM de prioridad 3 terminado para proceso con id %d \n", element->id);
                     add_to_ready_three(element);
