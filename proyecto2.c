@@ -214,10 +214,10 @@ void add_to_ready_one(struct Proceso *element){
     TAILQ_INSERT_TAIL(&head_ready_one, new_element, entries);
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {   
     int time_arrive, priority, processor_time, printer, modem, dvd_blueray, webcam, cornet;
-    int i, id = 1;
+    int i, id = 0;
     int number;
     FILE * fp;
     char * line = NULL;
@@ -226,8 +226,12 @@ int main(void)
     ssize_t read;
     struct Proceso *element;
     element = malloc(sizeof(struct Proceso));
+    if(argc != 2){
+        printf("Error en cantidad de argumentos");
+        return 0;
+    }
     //Leemos el archivo línea por línea, luego llamaremos una función para 
-    fp = fopen("archivo.txt", "r");
+    fp = fopen(argv[1], "r");
     if (fp == NULL){
         exit(EXIT_FAILURE);
     }
@@ -403,6 +407,12 @@ void despachador(){
                     element = head.tqh_first;
                     if(element -> priority == 0){
                         add_to_real_time_queue(element);
+                    }else if(element-> priority == 1){
+                        if(assign_resources_if_possible(element)){
+                            add_to_ready_one(element);
+                        }else{
+                            add_to_waiting_for_resources_one(element);
+                        }  
                     }else if(element -> priority ==2){
                         if(assign_resources_if_possible(element)){
                             add_to_ready_two(element);
