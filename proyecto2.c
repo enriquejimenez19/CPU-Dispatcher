@@ -309,6 +309,39 @@ void release_resources(struct Proceso *element){
     cornet = cornet + element->cornet;
 }
 
+void assign_resources(){
+    struct Proceso *element = malloc(sizeof(struct Proceso));
+    if(head_resources_one.tqh_first != NULL){
+        for (element = head_resources_one.tqh_first; element != NULL; element = element->entries.tqe_next){
+            if(assign_resources_if_possible(element)){
+                add_to_ready_two(element);    
+                printf("Recursos asignados al proceso ID: %d\n", element->id);
+                TAILQ_REMOVE(&head_resources_one, element, entries);
+            }
+        }
+    }
+
+    if(head_resources_two.tqh_first != NULL){
+        for (element = head_resources_two.tqh_first; element != NULL; element = element->entries.tqe_next){
+            if(assign_resources_if_possible(element)){
+                add_to_ready_two(element);    
+                printf("Recursos asignados al proceso ID: %d\n", element->id);
+                TAILQ_REMOVE(&head_resources_two, element, entries);
+            }
+        }
+    }
+
+    if(head_resources_three.tqh_first != NULL){
+        for (element = head_resources_three.tqh_first; element != NULL; element = element->entries.tqe_next){
+            if(assign_resources_if_possible(element)){
+                add_to_ready_three(element);    
+                printf("Recursos asignados al proceso ID: %d\n", element->id);
+                TAILQ_REMOVE(&head_resources_three, element, entries);
+            }
+        }
+        
+    }
+}
 void despachador(){
     
     char *child_time;
@@ -414,38 +447,7 @@ void despachador(){
                     release_resources(element);
                     TAILQ_REMOVE(&head_ready_one, head_ready_one.tqh_first, entries);
 
-                    if(head_resources_one.tqh_first != NULL){
-                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_one, element, entries);
-                        }
-                    }
-
-                    if(head_resources_two.tqh_first != NULL){
-                        for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_two, element, entries);
-                        }
-                    }
-
-                    if(head_resources_three.tqh_first != NULL){
-                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_three(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_three, element, entries);
-                        }
-                    }
+                    assign_resources();
                     
                 }else{
                     if(element->counter == 3){
@@ -485,38 +487,7 @@ void despachador(){
                     release_resources(element);
                     TAILQ_REMOVE(&head_ready_two, head_ready_two.tqh_first, entries);
 
-                    if(head_resources_one.tqh_first != NULL){
-                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_one, element, entries);
-                        }
-                    }
-
-                    if(head_resources_two.tqh_first != NULL){
-                        for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_two, element, entries);
-                        }
-                    }
-
-                    if(head_resources_three.tqh_first != NULL){
-                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_three(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_three, element, entries);
-                        }
-                    }
+                    assign_resources();
                     
                 }else{
                     if(element->counter == 2){
@@ -548,37 +519,7 @@ void despachador(){
                 if(element->processor_time <= 0){
                     printf("Proceso con ID %d culminado.\n", element->id);
                     release_resources(element);
-                    if(head_resources_one.tqh_first != NULL){
-                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_one, element, entries);
-                        }
-                    }
-
-                    if(head_resources_two.tqh_first != NULL){
-                        for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_two, element, entries);
-                        }
-                    }
-                    if(head_resources_three.tqh_first != NULL){
-                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_three(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_three, element, entries);
-                        }
-                    }
+                    assign_resources();
                     
                 }else{
                     printf("QUANTUM de prioridad 3 terminado para proceso con id %d \n", element->id);
@@ -593,7 +534,8 @@ void despachador(){
     } //Fin del while que tiene encolados todos los procesos de entrada
 
     while(head_ready_three.tqh_first != NULL || head_ready_two.tqh_first != NULL || head_ready_one.tqh_first != NULL){
-        
+        assign_resources();
+
         if(head_ready_one.tqh_first != NULL){
             element = head_ready_one.tqh_first;
             if(element->counter != 0){
@@ -632,38 +574,7 @@ void despachador(){
                     release_resources(element);
                     TAILQ_REMOVE(&head_ready_one, head_ready_one.tqh_first, entries);
 
-                    if(head_resources_one.tqh_first != NULL){
-                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_one, element, entries);
-                        }
-                    }
-
-                    if(head_resources_two.tqh_first != NULL){
-                        for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_two, element, entries);
-                        }
-                    }
-
-                    if(head_resources_three.tqh_first != NULL){
-                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_three(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_three, element, entries);
-                        }
-                    }
+                    assign_resources();
                     
                 }else{
                     add_to_ready_two(element);
@@ -709,37 +620,7 @@ void despachador(){
                     printf("Proceso con ID %d culminado.\n", element->id);
                     release_resources(element);
                     TAILQ_REMOVE(&head_ready_two, head_ready_two.tqh_first, entries);
-                    if(head_resources_one.tqh_first != NULL){
-                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_one, element, entries);
-                        }
-                    }
-                    if(head_resources_two.tqh_first != NULL){
-                        for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_two, element, entries);
-                        }
-                    }
-
-                    if(head_resources_three.tqh_first != NULL){
-                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_three(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_three, element, entries);
-                        }
-                    }
+                    assign_resources();
                     
                 }else{
                     add_to_ready_three(element);
@@ -769,36 +650,7 @@ void despachador(){
                 if(element->processor_time <= 0){
                     printf("Proceso con ID %d culminado.\n", element->id);
                     release_resources(element);
-                    if(head_resources_one.tqh_first != NULL){
-                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_one, element, entries);
-                        }
-                    }
-                    if(head_resources_two.tqh_first != NULL){
-                        for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_two(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_two, element, entries);
-                        }
-                    }
-                    if(head_resources_three.tqh_first != NULL){
-                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
-                            continue;
-                        }
-                        if(element != NULL){
-                            add_to_ready_three(element);    
-                            printf("Recursos asignados al proceso ID: %d\n", element->id);
-                            TAILQ_REMOVE(&head_resources_three, element, entries);
-                        }
-                    }
+                    assign_resources();
                     
                 }else{
                     printf("QUANTUM de prioridad 3 terminado para proceso con id %d \n", element->id);
