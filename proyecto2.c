@@ -709,6 +709,16 @@ void despachador(){
                     printf("Proceso con ID %d culminado.\n", element->id);
                     release_resources(element);
                     TAILQ_REMOVE(&head_ready_two, head_ready_two.tqh_first, entries);
+                    if(head_resources_one.tqh_first != NULL){
+                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
+                            continue;
+                        }
+                        if(element != NULL){
+                            add_to_ready_two(element);    
+                            printf("Recursos asignados al proceso ID: %d\n", element->id);
+                            TAILQ_REMOVE(&head_resources_one, element, entries);
+                        }
+                    }
                     if(head_resources_two.tqh_first != NULL){
                         for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
                             continue;
@@ -759,6 +769,16 @@ void despachador(){
                 if(element->processor_time <= 0){
                     printf("Proceso con ID %d culminado.\n", element->id);
                     release_resources(element);
+                    if(head_resources_one.tqh_first != NULL){
+                        for (element = head_resources_one.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
+                            continue;
+                        }
+                        if(element != NULL){
+                            add_to_ready_two(element);    
+                            printf("Recursos asignados al proceso ID: %d\n", element->id);
+                            TAILQ_REMOVE(&head_resources_one, element, entries);
+                        }
+                    }
                     if(head_resources_two.tqh_first != NULL){
                         for (element = head_resources_two.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
                             continue;
@@ -793,12 +813,12 @@ void despachador(){
         printf("Recursos: %d %d %d %d %d \n", printer, modem, dvd_bluray, webcam, cornet);
         while (head_ready_one.tqh_first != NULL){
             element = head_ready_one.tqh_first;
-            printf("READY2 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
+            printf("READY1 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
             TAILQ_REMOVE(&head_ready_one, head_ready_one.tqh_first, entries);
         }
         while (head_resources_one.tqh_first != NULL){
             element = head_resources_one.tqh_first;
-            printf("WAITING2 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
+            printf("WAITING1 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
             TAILQ_REMOVE(&head_resources_one, head_resources_one.tqh_first, entries);
         }
         while (head_ready_two.tqh_first != NULL){
