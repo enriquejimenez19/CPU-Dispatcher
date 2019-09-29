@@ -248,7 +248,7 @@ void despachador(){
             pID = fork();
             if(pID == 0){
 
-                printf("Iniciando proceso ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
+                printf("Iniciando proceso de tiempo real con ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
                 sprintf(child_time, "%d", element->processor_time);
                 if(execlp("./child", "child", child_time, NULL) == -1){
                     perror("Error in exec;");
@@ -293,15 +293,14 @@ void despachador(){
                 TAILQ_REMOVE(&head_ready_three, head_ready_three.tqh_first, entries);
                 if(element->processor_time <= 0){
                     printf("Proceso con ID %d culminado.\n", element->id);
-                    printf("hola");
                     release_resources(element);
                     if(head_resources_three.tqh_first != NULL){
                         for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
                             continue;
                         }
                         if(element != NULL){
-                            add_to_ready_three(element);
-                            printf("ELEMENT ID: %d\n", element->id);
+                            add_to_ready_three(element);    
+                            printf("Recursos asignados al proceso ID: %d\n", element->id);
                             TAILQ_REMOVE(&head_resources_three, element, entries);
                         }
                     }
@@ -314,6 +313,45 @@ void despachador(){
         }
         printf("Time: %d \n", time_program);
         time_program++;
+    }
+
+    while(head_ready_three.tqh_first != NULL){
+        if(head_ready_three.tqh_first != NULL){
+            element = head_ready_three.tqh_first;
+            pID = fork();
+            if(pID == 0){
+
+                printf("Iniciando QUANTUM prioridad 3 del proceso ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
+                sprintf(child_time, "%d", 1);
+                if(execlp("./child", "child", child_time, NULL) == -1){
+                    perror("Error in exec;");
+                }
+                
+                return;
+            }else{
+                wait(0);
+                element->processor_time--;
+                TAILQ_REMOVE(&head_ready_three, head_ready_three.tqh_first, entries);
+                if(element->processor_time <= 0){
+                    printf("Proceso con ID %d culminado.\n", element->id);
+                    release_resources(element);
+                    if(head_resources_three.tqh_first != NULL){
+                        for (element = head_resources_three.tqh_first; element != NULL && assign_resources_if_possible(element) == 0; element = element->entries.tqe_next){
+                            continue;
+                        }
+                        if(element != NULL){
+                            add_to_ready_three(element);    
+                            printf("Recursos asignados al proceso ID: %d\n", element->id);
+                            TAILQ_REMOVE(&head_resources_three, element, entries);
+                        }
+                    }
+                    
+                }else{
+                    printf("QUANTUM de prioridad 3 terminado para proceso con id %d \n", element->id);
+                    add_to_ready_three(element);
+                } 
+            }
+        }
     }
 
 
