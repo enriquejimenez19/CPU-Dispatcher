@@ -19,16 +19,19 @@ int dvd_bluray = 2;
 int webcam = 1;
 int cornet = 2;
 
-
+// Input process queue
 TAILQ_HEAD(tailhead, Proceso) head;
 // Real time Queue
 TAILQ_HEAD(tailheadrealtime, Proceso) head_real_time;
 // Waiting for resources and ready queue priority three 
 TAILQ_HEAD(tailheadresourcesthreee, Proceso) head_resources_three;
 TAILQ_HEAD(tailheadreadythreee, Proceso) head_ready_three;
-// Waiting for resources and ready queue priority three 
+// Waiting for resources and ready queue priority two
 TAILQ_HEAD(tailheadresourcestwo, Proceso) head_resources_two;
 TAILQ_HEAD(tailheadreadytwo, Proceso) head_ready_two;
+// Waiting for resources and ready queue priority two
+TAILQ_HEAD(tailheadresourcesone, Proceso) head_resources_one;
+TAILQ_HEAD(tailheadreadyone, Proceso) head_ready_one;
 
 struct Proceso{
     int id;
@@ -171,6 +174,46 @@ void add_to_ready_two(struct Proceso *element){
     TAILQ_INSERT_TAIL(&head_ready_two, new_element, entries);
 }
 
+void add_to_waiting_for_resources_one(struct Proceso *element){
+    struct Proceso *new_element;
+    new_element = malloc(sizeof(struct Proceso));
+    
+    if (new_element) {
+        new_element->id = element->id;
+        new_element->time_arrive = element->time_arrive;
+        new_element->priority = element->priority;
+        new_element->processor_time = element->processor_time;
+        new_element->printer = element->printer;
+        new_element->modem = element->modem;
+        new_element->dvd_blueray = element->dvd_blueray;
+        new_element->webcam = element->webcam;
+        new_element->cornet = element->cornet;
+        new_element->counter = element->counter;
+    }
+
+    TAILQ_INSERT_TAIL(&head_resources_one, new_element, entries);
+}
+
+void add_to_ready_one(struct Proceso *element){
+    struct Proceso *new_element;
+    new_element = malloc(sizeof(struct Proceso));
+    
+    if (new_element) {
+        new_element->id = element->id;
+        new_element->time_arrive = element->time_arrive;
+        new_element->priority = element->priority;
+        new_element->processor_time = element->processor_time;
+        new_element->printer = element->printer;
+        new_element->modem = element->modem;
+        new_element->dvd_blueray = element->dvd_blueray;
+        new_element->webcam = element->webcam;
+        new_element->cornet = element->cornet;
+        new_element->counter = element->counter;
+    }
+
+    TAILQ_INSERT_TAIL(&head_ready_one, new_element, entries);
+}
+
 int main(void)
 {   
     int time_arrive, priority, processor_time, printer, modem, dvd_blueray, webcam, cornet;
@@ -195,6 +238,8 @@ int main(void)
     TAILQ_INIT(&head_ready_three);
     TAILQ_INIT(&head_resources_two);
     TAILQ_INIT(&head_ready_two);
+    TAILQ_INIT(&head_resources_one);
+    TAILQ_INIT(&head_ready_one);
 
     while ((read = getline(&line, &len, fp)) != -1) {
         token = strtok(line,",");
@@ -278,6 +323,12 @@ void despachador(){
         while(head.tqh_first != NULL && head.tqh_first->time_arrive <= time_program){
             if(head.tqh_first -> priority == 0){
                 add_to_real_time_queue(head.tqh_first);
+            }else if(head.tqh_first -> priority == 1){
+                if(assign_resources_if_possible(head.tqh_first)){
+                    add_to_ready_one(head.tqh_first);
+                }else{
+                    add_to_waiting_for_resources_one(head.tqh_first);
+                }
             }else if(head.tqh_first -> priority == 2){
                 if(assign_resources_if_possible(head.tqh_first)){
                     add_to_ready_two(head.tqh_first);
@@ -554,6 +605,16 @@ void despachador(){
 
     if(DEBUG){
         printf("Recursos: %d %d %d %d %d \n", printer, modem, dvd_bluray, webcam, cornet);
+        while (head_ready_one.tqh_first != NULL){
+            element = head_ready_one.tqh_first;
+            printf("READY2 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
+            TAILQ_REMOVE(&head_ready_one, head_ready_one.tqh_first, entries);
+        }
+        while (head_resources_one.tqh_first != NULL){
+            element = head_resources_one.tqh_first;
+            printf("WAITING2 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
+            TAILQ_REMOVE(&head_resources_one, head_resources_one.tqh_first, entries);
+        }
         while (head_ready_two.tqh_first != NULL){
             element = head_ready_two.tqh_first;
             printf("READY2 - ID: %d - %d %d %d %d %d %d %d %d \n",element->id, element->time_arrive, element->priority, element->processor_time, element->printer, element->modem, element->dvd_blueray, element->webcam, element->cornet);
